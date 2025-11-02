@@ -1,11 +1,17 @@
-title: Labspace starter
+title: Docker Offload Labspace
 description: |
-  A basic template for creating a Labspace, including all of the boilerplate needed to write and publish a Labspace.
+  Master cloud-powered Docker development with GPU acceleration - from local to cloud in one click
 
 sections:
   - title: Introduction
     contentPath: .labspace/01-introduction.md
-  - title: Main Content 1
-    contentPath: .labspace/02-main-content.md
-  - title: Conclusion
-    contentPath: .labspace/03-conclusion.md
+  - title: Getting Started with Docker Offload
+    contentPath: .labspace/02-getting-started.md
+  - title: GPU-Accelerated ML Workloads
+    contentPath: .labspace/03-gpu-workloads.md
+  - title: Multi-Agent Fact Checker
+    contentPath: .labspace/04-a2a-fact-checker.md
+  - title: Real-World Application - GitHub Issue Analyzer
+    contentPath: .labspace/05-agno-github-analyzer.md
+  - title: Next Steps
+    contentPath: .labspace/06-next-steps.md
