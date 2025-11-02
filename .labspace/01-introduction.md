@@ -174,9 +174,8 @@ This workshop demonstrates:
 ## 🤝 Support
 
 Need help? Reach out to:
-- **Eva Bojorges** - Docker Offload support
+
 - **Ajeet Singh Raina** - Workshop questions
-- **Collabnix Community** - [Join on Slack](https://collabnix.com/slack)
 
 ---
 
