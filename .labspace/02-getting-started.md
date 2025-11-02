@@ -1,77 +1,35 @@
 # Getting Started with Docker Offload
 
-⏱️ **Estimated time**: 10 minutes
+## Prerequisites
 
-In this lab, you'll set up Docker Offload and learn how to start cloud-powered Docker sessions.
+✅ Docker Desktop 4.43.0 or later
 
-## 🎯 Learning Objectives
+✅ Active Docker Hub account
 
-By the end of this lab, you will:
-- Install and verify Docker Offload
-- Start your first Docker Offload session
-- Understand Docker contexts
-- Verify GPU availability
-- Run your first cloud container
+✅ Internet connection
 
-## 📋 Step 1: Verify Docker Desktop Version
+**Note for Docker Captains**: You don't need to sign up separately for Docker Offload. Just start using it by following the CLI commands below. If you face any issues, reach out to Eva Bojorges.
 
-Docker Offload requires Docker Desktop 4.43.0 or later.
+## Installation & Setup
 
-```bash
-docker version
-```
+### Step 1: Verify Docker Desktop Version
 
-Look for the **Server Version** in the output. It should be 4.43.0 or higher.
-
-**Expected output:**
-```
-Client:
- Version:           28.0.2
- ...
-
-Server: Docker Desktop 4.43.0 (178452)
- Engine:
-  Version:          28.0.2
-  ...
-```
-
-> 📝 **Note**: If your version is older, update Docker Desktop from [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/).
-
-## 📋 Step 2: Enable Docker Offload
-
-There are two ways to enable Docker Offload:
-
-### Option A: Using Docker Dashboard (Recommended)
-
-1. Open Docker Desktop
-2. Navigate to **Settings** → **Beta Features**
-3. Toggle **Docker Offload** to ON
-4. Click **Apply & Restart**
-
-### Option B: Using CLI
-
-Docker Captains have automatic access and can start using it immediately via CLI without additional setup.
-
-## 📋 Step 3: Check Docker Offload Version
-
-Verify Docker Offload is available:
+Ensure you have Docker Desktop 4.43.0 or later installed:
 
 ```bash
-docker offload version
+docker --version
 ```
 
-**Expected output:**
-```
-Docker Offload v0.4.2 build at 2025-06-30
-```
+### Step 2: Explore Docker Offload CLI
 
-View all available commands:
+Open your terminal and run:
 
 ```bash
-docker offload --help
+docker offload
 ```
 
-**Output:**
+You should see:
+
 ```
 Usage:  docker offload COMMAND
 
@@ -88,189 +46,144 @@ Commands:
 Run 'docker offload COMMAND --help' for more information on a command.
 ```
 
-## 📋 Step 4: Start Docker Offload Session
+## Starting Your First Docker Offload Session
 
-Start a Docker Offload session with GPU support:
+### Step 3: Start Docker Offload
 
 ```bash
-docker offload start --gpu
+docker offload start
 ```
 
-You'll see an interactive prompt:
+You'll be prompted to:
 
-```
-? Please select an account:
-  › user: ajeetraina
-    org: docker
-```
+1. **Choose your Hub account** - Select your Docker Hub account
+2. **Enable GPU support** - Choose whether to enable GPU (recommended for ML workloads)
 
-Select your account (Docker Captains typically use their personal account).
+**GPU Support**: When enabled, Docker Offload runs in an instance with an NVIDIA L4 GPU, perfect for machine learning or compute-intensive workloads.
 
-Next, you'll be asked about GPU support:
+### Step 4: Verify the Cloud Context
 
-```
-? Enable GPU support? (Y/n)
-```
-
-Press `Y` for yes. This provisions an NVIDIA L4 GPU instance.
-
-**Expected output:**
-```
-✓ Starting Docker Offload session...
-✓ Provisioning cloud resources...
-✓ Connecting to cloud daemon...
-✓ Docker Offload session started successfully!
-
-Context switched to: docker-cloud
-```
-
-> ⚡ **Pro Tip**: Use `--no-gpu` flag if you don't need GPU acceleration. This saves costs!
-
-## 📋 Step 5: Verify Docker Context
-
-Docker Offload creates a new context called `docker-cloud`:
+After starting Docker Offload, a new `docker-cloud` context is created:
 
 ```bash
 docker context ls
 ```
 
-**Expected output:**
+Expected output:
+
 ```
 NAME             DESCRIPTION                                      DOCKER ENDPOINT
-default          Current DOCKER_HOST based configuration         unix:///var/run/docker.sock
-desktop-linux    Docker Desktop                                   unix:///Users/.../.docker/run/docker.sock
-docker-cloud *   docker cloud context created by version v0.4.2  unix:///Users/.../.docker/cloud/docker-cloud.sock
+default          Current DOCKER_HOST based configuration          unix:///var/run/docker.sock
+desktop-linux    Docker Desktop                                   unix:///Users/username/.docker/run/docker.sock
+docker-cloud *   docker cloud context created by version v0.4.2   unix:///Users/username/.docker/cloud/docker-cloud.sock
 ```
 
-The `*` indicates `docker-cloud` is the active context. All Docker commands now run in the cloud!
+Notice the asterisk (*) next to `docker-cloud` - this indicates it's your active context.
 
-## 📋 Step 6: Check Offload Status
+## Verifying Your Setup
 
-View your Docker Offload connection status:
-
-```bash
-docker offload status
-```
-
-**Expected output:**
-```
-Status: Connected
-Account: ajeetraina
-GPU Enabled: Yes
-Instance Type: gpu.large
-Region: us-east-1
-Uptime: 2m 15s
-Auto-shutdown: 30 minutes of inactivity
-```
-
-## 📋 Step 7: Verify Cloud Environment
-
-Check that you're running in the cloud:
-
-```bash
-docker info | grep -E "(Server Version|Operating System)"
-```
-
-**Expected output:**
-```
-Server Version: 28.0.2
-Operating System: Ubuntu 22.04.5 LTS
-```
-
-The **Ubuntu** operating system confirms you're running in the Docker Offload cloud environment!
-
-## 📋 Step 8: Verify GPU Availability
-
-Let's confirm the NVIDIA L4 GPU is available:
-
-```bash
-docker run --rm --gpus all nvidia/cuda:12.4.0-runtime-ubuntu22.04 nvidia-smi
-```
-
-**Expected output:**
-```
-Fri Nov  2 16:55:11 2025       
-+---------------------------------------------------------------------------------------+
-| NVIDIA-SMI 535.247.01             Driver Version: 535.247.01   CUDA Version: 12.4     |
-|-----------------------------------------+----------------------+----------------------+
-| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
-|                                         |                      |               MIG M. |
-|=========================================+======================+======================|
-|   0  NVIDIA L4                      Off | 00000000:31:00.0 Off |                    0 |
-| N/A   44C    P0              27W /  72W |      0MiB / 23034MiB |      0%      Default |
-|                                         |                      |                  N/A |
-+-----------------------------------------+----------------------+----------------------+
-```
-
-🎉 **Success!** You have:
-- **GPU**: NVIDIA L4
-- **Memory**: 23GB VRAM
-- **CUDA**: Version 12.4
-- **Driver**: 535.247.01
-
-## 📋 Step 9: Run Your First Cloud Container
-
-Let's run a simple container to test the cloud execution:
-
-```bash
-docker run --rm alpine:latest echo "Hello from Docker Offload!"
-```
-
-**Expected output:**
-```
-Hello from Docker Offload!
-```
-
-## 📋 Step 10: Check Available Accounts
-
-View all accounts you can use with Docker Offload:
+### Check Available Accounts
 
 ```bash
 docker offload accounts
 ```
 
-**Expected output (formatted):**
-```json
-{
-  "user": {
-    "id": "15ee357d-XXXX-4d39-87d9-dc3b697b3392",
-    "fullName": "Ajeet Singh Raina",
-    "username": "ajeetraina",
-    "state": "READY"
-  },
-  "orgs": [
-    {
-      "id": "57b45934-74c0-11e4-XXX-0242ac11001b",
-      "fullName": "Docker, Inc.",
-      "orgname": "docker",
-      "state": "READY"
-    }
-  ]
-}
-```
+This displays your user and organization accounts available for Docker Offload.
 
-## 🔄 Switching Contexts
-
-To switch back to local Docker:
+### Check Connection Status
 
 ```bash
-docker context use desktop-linux
+docker offload status
 ```
 
-To switch back to Docker Offload:
+### Check Version
 
 ```bash
-docker context use docker-cloud
+docker offload version
 ```
 
-Or simply restart the offload session:
+Expected output:
+```
+Docker Offload v0.4.2 build at 2025-06-30
+```
+
+### Verify Cloud Instance
+
+Confirm you're connected to the cloud instance:
 
 ```bash
-docker offload start --gpu
+docker info | grep -E "(Server Version|Operating System)"
 ```
 
-## 🛑 Stopping Docker Offload
+Expected output:
+```
+ Server Version: 28.0.2
+ Operating System: Ubuntu 22.04.5 LTS
+```
+
+### Verify GPU Availability (if enabled)
+
+If you enabled GPU support, verify the GPU:
+
+```bash
+docker run --rm --gpus all nvidia/cuda:12.4.0-runtime-ubuntu22.04 nvidia-smi
+```
+
+You should see output showing:
+- **GPU**: NVIDIA L4
+- **Memory**: 23GB total
+- **Driver**: 535.247.01
+- **CUDA Version**: 12.4
+
+## Using Docker Dashboard
+
+### Enable Docker Offload in Dashboard
+
+1. Open Docker Desktop
+2. Navigate to **Settings > Beta Features**
+3. Enable **Docker Offload**
+4. Toggle the button to start Docker Offload
+
+### Where to Find Docker Offload
+
+Docker Offload appears in multiple places:
+- Under **Models** section
+- On the **left sidebar** of the Docker Dashboard
+
+## Your First Cloud Container
+
+Let's run a simple test to verify everything works:
+
+```bash
+docker run --rm hello-world
+```
+
+This container runs in the cloud, not on your local machine!
+
+## Running a Sample Application
+
+Let's deploy a full-stack React application with Node.js backend and MongoDB:
+
+```bash
+docker compose -p react-express-mongodb \
+  -f "https://github.com/docker/awesome-compose.git#:react-express-mongodb" up
+```
+
+This compose file defines an application with three services:
+- **frontend** - React application
+- **backend** - Node.js API
+- **db** - MongoDB database
+
+The application maps port 3000 of the frontend service to port 3000 of the cloud instance.
+
+### Verify in Docker Dashboard
+
+1. Open Docker Desktop
+2. Navigate to **Containers**
+3. You should see your running containers
+4. Click on the container to view logs and metrics
+
+## Stopping Docker Offload
 
 When you're done, stop the Docker Offload session:
 
@@ -278,79 +191,40 @@ When you're done, stop the Docker Offload session:
 docker offload stop
 ```
 
-**Expected output:**
-```
-✓ Stopping Docker Offload session...
-✓ Cleaning up cloud resources...
-✓ Session stopped successfully.
+This command removes the `docker-cloud` context from your system.
 
-Context switched to: desktop-linux
-```
+## Troubleshooting
 
-> 💡 **Auto-Shutdown**: Docker Offload automatically stops after ~30 minutes of inactivity, so you don't need to worry about forgetting to stop it!
+### View Docker Offload Logs
 
-## 📊 Session Management
-
-Docker Offload manages ephemeral cloud environments:
-
-| Feature | Behavior |
-|---------|----------|
-| **Active Session** | Remains active while you interact with containers |
-| **Inactivity Timeout** | ~30 minutes of no activity |
-| **Auto-Cleanup** | Containers, images, and volumes removed on stop |
-| **No Persistence** | No state between sessions (by design) |
-| **Cost Efficiency** | Pay only for active session time |
-
-## 🐛 Troubleshooting
-
-### Issue: Docker Offload command not found
-
-**Solution**: Update to Docker Desktop 4.43.0 or later
-
-### Issue: Cannot start session
-
-**Solution**: 
-1. Check internet connectivity
-2. Verify Docker Captain status
-3. Contact Eva Bojorges for access issues
-
-### Issue: GPU not available
-
-**Solution**: Ensure you started with `--gpu` flag:
-```bash
-docker offload stop
-docker offload start --gpu
-```
-
-### View Logs
-
-If you encounter issues, check the logs:
+All Docker Offload logs are available at:
 
 ```bash
 cd ~/.docker/cloud/logs
 tail -f cloud-daemon.log
 ```
 
-## 📚 Key Takeaways
+### Common Issues
 
-✅ Docker Offload extends your local Docker workflow to the cloud  
-✅ NVIDIA L4 GPUs with 23GB VRAM are available instantly  
-✅ Same Docker commands work seamlessly in the cloud  
-✅ Automatic cleanup prevents runaway costs  
-✅ Docker Captains get automatic access  
+**Issue**: Cannot start Docker Offload
+- **Solution**: Ensure Docker Desktop 4.43.0+ is installed and you're logged into Docker Hub
 
-## 🎯 Next Steps
+**Issue**: GPU not available
+- **Solution**: Make sure you enabled GPU support when starting the session
 
-Now that you have Docker Offload running, let's put that GPU to work!
+**Issue**: Connection timeout
+- **Solution**: Check your internet connection and firewall settings
 
-In the next lab, you'll:
-- Run Jupyter Lab with TensorFlow GPU support
-- Deploy Streamlit ML applications
-- Test Hugging Face transformers
-- Experience real GPU acceleration
+## Key Takeaways
 
----
+✅ Docker Offload uses the same Docker CLI you know and love
 
-**Ready to run GPU-accelerated ML workloads?** 🚀
+✅ The `docker-cloud` context automatically routes commands to cloud infrastructure
 
-Click **Next** to continue to Lab 03: GPU-Accelerated ML Workloads →
+✅ Sessions are ephemeral and clean up automatically after 30 minutes of inactivity
+
+✅ GPU acceleration is available with NVIDIA L4 GPUs (23GB VRAM)
+
+✅ All your Docker workflows work seamlessly - builds, compose, run, etc.
+
+Now that you're set up, let's explore GPU-accelerated workloads! 🚀
