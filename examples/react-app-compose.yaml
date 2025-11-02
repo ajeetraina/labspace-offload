@@ -1,0 +1,39 @@
+# Sample React application with Node.js backend and MongoDB
+# This demonstrates running a full-stack app with Docker Offload
+
+services:
+  frontend:
+    image: node:16
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm start"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+
+  backend:
+    image: node:16
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    ports:
+      - "5000:5000"
+    command: sh -c "npm install && npm start"
+    depends_on:
+      - db
+    environment:
+      - MONGODB_URL=mongodb://db:27017/myapp
+
+  db:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

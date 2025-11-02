@@ -1,0 +1,53 @@
+# Agno GitHub Issue Analyzer Example
+# Three-agent system for analyzing GitHub repositories
+
+services:
+  agents:
+    image: demo/agents
+    build:
+      context: ./agent
+    ports:
+      - "7777:7777"
+    environment:
+      - MCPGATEWAY_URL=http://mcp-gateway:8811/sse
+    volumes:
+      - ./agents.yaml:/agents.yaml
+    models:
+      qwen3-small:
+        endpoint_var: MODEL_RUNNER_URL
+        model_var: MODEL_RUNNER_MODEL
+
+  agents-ui:
+    image: demo/ui
+    build:
+      context: ./agent-ui
+    ports:
+      - "3000:3000"
+    environment:
+      - AGENTS_URL=http://localhost:7777
+    depends_on:
+      - agents
+
+  mcp-gateway:
+    image: docker/mcp-gateway:latest
+    use_api_socket: true
+    command:
+      - --transport=sse
+      - --secrets=/run/secrets/mcp_secret
+      - --servers=github-official
+      # Convert GitHub JSON to CSV for efficient AI processing
+      - --interceptor
+      - after:exec:cat | jq '.content[0].text = (.content[0].text | fromjson | map(select(. != null) | [(.number // ""), (.state // ""), (.title // ""), (.user.login // ""), ((.labels // []) | map(.name) | join(";")), (.created_at // "")] | @csv) | join("\n"))'
+    secrets:
+      - mcp_secret
+
+models:
+  qwen3-small:
+    model: ai/qwen3:8B-Q4_0  # 4.44 GB
+    context_size: 15000  # 7 GB VRAM
+    # Increase for larger repositories:
+    # context_size: 41000  # 13 GB VRAM
+
+secrets:
+  mcp_secret:
+    file: ./.mcp.env
